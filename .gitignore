@@ -1,0 +1,6 @@
+poetry.lock
+
+*.pyc
+.coverage
+.tox
+redis*.db
