@@ -22,7 +22,7 @@ pytest-isort = "^3.1.0"
 optional = true
 
 [tool.poetry.group.backends.dependencies]
-mockcache = { url = "https://github.com/buserbrasil/mockcache/archive/buser.zip" }
+mockcache = { url = "https://github.com/buserbrasil/mockcache/archive/28fcd581ed185095cc93529954b5fceb704c1a34.zip" }
 fakeredis = "*"
 redislite = "*"
 django-redis = "*"
