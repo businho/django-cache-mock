@@ -5,7 +5,6 @@ from django.utils.functional import SimpleLazyObject
 
 logger = logging.getLogger(__name__)
 
-
 try:
     from django.core.cache.backends.redis import RedisCache, RedisCacheClient
 

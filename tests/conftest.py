@@ -9,15 +9,12 @@ def setup_env():
     os.environ["DJANGO_SETTINGS_MODULE"] = "tests.testapp.settings"
 
 
-@pytest.fixture(
-    scope="session",
-    params=["default", "mockcache", "fakeredis", "redislite"],
-)
+@pytest.fixture(params=["default", "mockcache", "fakeredis", "redislite"])
 def cache_alias(request):
     return os.getenv("CACHE_ALIAS", request.param)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def cache_cleanup(cache_alias):
     yield
     caches[cache_alias].clear()

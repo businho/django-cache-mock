@@ -2,5 +2,6 @@ poetry.lock
 
 *.pyc
 .coverage
+.python-version
 .tox
 redis*.db

@@ -46,3 +46,4 @@ show_missing = true
 
 [tool.pytest.ini_options]
 addopts = "--cov --black --flake8 --isort"
+filterwarnings = ["ignore::DeprecationWarning", "ignore::pytest.PytestWarning"]

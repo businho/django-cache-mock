@@ -1,20 +1,12 @@
-import threading
-
+import pytest
 from django.core.cache import caches
 
+from tests.thread_with_exceptions import Thread
 
-class _Thread(threading.Thread):
-    def run(self):
-        self.exc = None
-        try:
-            super().run()
-        except BaseException as exc:
-            self.exc = exc
 
-    def join(self):
-        threading.Thread.join(self)
-        if self.exc:
-            raise self.exc
+@pytest.fixture(autouse=True)
+def always_cleanup_cache_here(cache_cleanup):
+    pass
 
 
 def test_get_with_default_value(cache_alias):
@@ -28,11 +20,11 @@ def _threaded_assert_value(cache_alias, key, expected_value):
     assert value == expected_value
 
 
-def test_differente_threads_use_same_data(cache_alias):
+def test_different_threads_use_same_data(cache_alias):
     cache = caches[cache_alias]
     key = "FOO"
     value = "BAR"
     cache.set(key, value)
-    thread = _Thread(target=_threaded_assert_value, args=(cache_alias, key, value))
+    thread = Thread(target=_threaded_assert_value, args=(cache_alias, key, value))
     thread.start()
     thread.join()
