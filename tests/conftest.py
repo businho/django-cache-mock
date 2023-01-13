@@ -58,3 +58,8 @@ def redis_cache_alias_not_installed(cache_alias_not_installed):
     if "redis" not in CACHES[cache_alias]["BACKEND"]:
         pytest.skip(f"Module {cache_alias} is not a redis backend.")
     return cache_alias
+
+
+@pytest.fixture(params=["fakeredis", "redislite"])
+def redis_backend(request):
+    return request.param

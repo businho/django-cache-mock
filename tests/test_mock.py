@@ -3,6 +3,7 @@ from unittest.mock import sentinel
 import pytest
 
 from django_cache_mock import patch
+from django_cache_mock.mock import SUPPORTED_BACKENDS
 
 
 def test_do_not_patch_when_location_is_defined():
@@ -33,3 +34,24 @@ def test_custom_params():
     patch(caches, "default", "mockcache", {"BAR": sentinel.bar})
     assert "FOO" not in caches["default"]
     assert caches["default"]["BAR"] == sentinel.bar
+
+
+def test_use_django_builtin_redis_based_on_backend(redis_backend):
+    caches = {"default": {"BACKEND": "django.core.cache.backends.redis.RedisCache"}}
+    patch(caches, "default", redis_backend)
+    assert caches["default"]["BACKEND"] == SUPPORTED_BACKENDS[redis_backend]
+
+
+def test_use_django_redis_based_on_backend(redis_backend):
+    caches = {"default": {"BACKEND": "django_redis.cache.RedisCache"}}
+    patch(caches, "default", redis_backend)
+    expected_backend = SUPPORTED_BACKENDS[f"{redis_backend}[django-redis]"]
+    assert caches["default"]["BACKEND"] == expected_backend
+
+
+def test_use_django_redis_explicit(redis_backend):
+    caches = {"default": {}}
+    explicit_django_redis_backend = f"{redis_backend}[django-redis]"
+    patch(caches, "default", explicit_django_redis_backend)
+    expected_backend = SUPPORTED_BACKENDS[explicit_django_redis_backend]
+    assert caches["default"]["BACKEND"] == expected_backend
