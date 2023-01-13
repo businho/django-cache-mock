@@ -37,13 +37,13 @@ def test_server_name(cache_alias_installed, tmp_path):
         # Ignore if cache is not defined yet.
         pass
     cache = caches[cache_alias]
-    assert cache._servers == [location]
+    assert cache.location == location
     cache.set("FOO", "BAR")
     assert cache.get("FOO") == "BAR"
 
 
 def test_not_implemented_exception():
-    # Import at root level trigger
+    # Import at root level trigger https://github.com/jazzband/django-redis/issues/638.
     from django_cache_mock.backends.redis import LazyRedisCacheImportError
 
     try:
@@ -61,6 +61,7 @@ def test_not_implemented_exception():
 
 
 def test_redis_import_error(redis_cache_alias_not_installed):
+    # Import at root level trigger https://github.com/jazzband/django-redis/issues/638.
     from django_cache_mock.backends.redis import LazyRedisCacheImportError
 
     cache_alias = redis_cache_alias_not_installed

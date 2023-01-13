@@ -17,14 +17,30 @@ def cache_alias(request):
     return request.param
 
 
-@pytest.fixture
-def cache_alias_installed(cache_alias):
-    module_names = cache_alias.replace("]", "").split("[")
+def _validate_backend_installed(cache_alias):
+    # Import at root level trigger https://github.com/jazzband/django-redis/issues/638.
+    from django_cache_mock.backends.redis import LazyRedisCacheImportError
+
+    backend_module, backend_class = CACHES[cache_alias]["BACKEND"].rsplit(".", 1)
+    backend = getattr(importlib.import_module(backend_module), backend_class)
+
+    if issubclass(backend, LazyRedisCacheImportError):
+        return False
+
+    module_names = cache_alias.replace("-", "_").replace("]", "").split("[")
     for module_name in module_names:
         try:
             importlib.import_module(module_name)
         except ImportError:
-            pytest.skip(f"Module {module_name} not installed.")
+            return False
+
+    return True
+
+
+@pytest.fixture
+def cache_alias_installed(cache_alias):
+    if not _validate_backend_installed(cache_alias):
+        pytest.skip(f"Cache {cache_alias} not installed.")
 
     yield cache_alias
     caches[cache_alias].clear()
@@ -33,14 +49,8 @@ def cache_alias_installed(cache_alias):
 
 @pytest.fixture
 def cache_alias_not_installed(cache_alias):
-    module_names = cache_alias.replace("]", "").split("[")
-    for module_name in module_names:
-        try:
-            importlib.import_module(module_name)
-        except ImportError:
-            pass
-        else:
-            pytest.skip(f"Module {module_name} installed.")
+    if _validate_backend_installed(cache_alias):
+        pytest.skip(f"Cache {cache_alias} installed.")
     return cache_alias
 
 

@@ -24,6 +24,7 @@ try:
         def __init__(self, server, params):
             if not server:
                 server = self.library.__name__
+            self.location = server
 
             super().__init__(server, params)
             self._lib = self.library
@@ -60,6 +61,7 @@ try:
         def __init__(self, server, params):
             if not server:
                 server = self.library.__name__
+            self.location = server
 
             super().__init__(server, params)
 

@@ -14,7 +14,7 @@ class MockcacheCache(BaseMemcachedCache):
             library=mockcache,
             value_not_found_exception=ValueError,
         )
-        self._server = server
+        self.location = server
 
     def get(self, key, default=None, version=None):
         # Override method because library don't support a default value.
@@ -28,5 +28,5 @@ class MockcacheCache(BaseMemcachedCache):
     @cached_property
     def _cache(self):
         client = super()._cache
-        client.dictionary = self._dbs.setdefault(self._server, {})
+        client.dictionary = self._dbs.setdefault(self.location, {})
         return client
