@@ -23,3 +23,7 @@ jobs:
         python -m pip install poetry tox tox-gh-actions
     - name: Test with tox
       run: tox -v
+    - uses: codecov/codecov-action@v3
+      with:
+        fail_ci_if_error: true
+        verbose: true
