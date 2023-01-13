@@ -31,13 +31,6 @@ def _validate_backend_installed(cache_alias):
     if issubclass(backend, LazyRedisCacheImportError):
         return False
 
-    module_names = cache_alias.replace("-", "_").replace("]", "").split("[")
-    for module_name in module_names:
-        try:
-            importlib.import_module(module_name)
-        except ImportError:
-            return False
-
     return True
 
 

@@ -69,7 +69,7 @@ def test_redis_import_error(redis_cache_alias_not_installed):
         caches[cache_alias]
     except LazyRedisCacheImportError:
         pass
-    else:
+    else:  # pragma: no cover
         pytest.fail("Cache unexpectedly worked.")
 
 
@@ -79,5 +79,5 @@ def test_memcached_import_error(memcached_cache_alias_not_installed):
         caches[cache_alias]
     except InvalidCacheBackendError:
         pass
-    else:
+    else:  # pragma: no cover
         pytest.fail("Cache unexpectedly worked.")
