@@ -4,6 +4,12 @@ SUPPORTED_BACKENDS = {
     "mockcache": "django_cache_mock.backends.memcached.MockcacheCache",
     "fakeredis": "django_cache_mock.backends.redis.FakeRedisCache",
     "redislite": "django_cache_mock.backends.redis.RedisLiteCache",
+    "fakeredis[django-redis]": (
+        "django_cache_mock.backends.redis.FakeRedisDjangoRedisCache"
+    ),
+    "redislite[django-redis]": (
+        "django_cache_mock.backends.redis.RedisLiteDjangoRedisCache"
+    ),
 }
 
 logger = logging.getLogger(__name__)

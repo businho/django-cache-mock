@@ -29,8 +29,9 @@ django-redis = "*"
 
 [tool.poetry.extras]
 mockcache = ["mockcache"]
-fakeredis = ["fakeredis", "django-redis"]
-redislite = ["redislite", "django-redis"]
+fakeredis = ["fakeredis"]
+redislite = ["redislite"]
+django-redis = ["django-redis"]
 
 [build-system]
 requires = ["poetry-core"]

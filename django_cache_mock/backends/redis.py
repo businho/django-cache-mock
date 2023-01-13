@@ -5,16 +5,22 @@ from django.utils.functional import SimpleLazyObject
 
 logger = logging.getLogger(__name__)
 
+
+class LazyRedisCacheImportError(Exception):
+    parent_exception = None
+
+    def __init__(self, server, params):
+        raise self from self.parent_exception
+
+
 try:
     from django.core.cache.backends.redis import RedisCache, RedisCacheClient
-
-    logger.debug("Using Django built-in redis cache.")
 
     class _RedisCacheClient(RedisCacheClient):
         def get_client(self, key=None, *, write=False):
             return self._client(**self._options)
 
-    class BaseRedisCache(RedisCache):
+    class BaseDjangoBuiltInRedisCache(RedisCache):
         def __init__(self, server, params):
             if not server:
                 server = self.library.__name__
@@ -32,7 +38,14 @@ try:
             client._options = dict(**self.redis_client_cls_kwargs, **self._options)
             return client
 
-except ImportError:
+except ImportError as _import_error:
+    logger.debug("Django built-in redis cache not found.")
+
+    class BaseDjangoBuiltInRedisCache(LazyRedisCacheImportError):
+        parent_exception = _import_error
+
+
+try:
     # Django<4 don´t have built-in RedisCache.
     from django_redis.cache import RedisCache
     from django_redis.pool import ConnectionFactory
@@ -43,7 +56,7 @@ except ImportError:
         def get_connection(self, params):
             return self.redis_client_cls(**self.redis_client_cls_kwargs)
 
-    class BaseRedisCache(RedisCache):
+    class BaseDjangoRedisRedisCache(RedisCache):
         def __init__(self, server, params):
             if not server:
                 server = self.library.__name__
@@ -65,11 +78,17 @@ except ImportError:
                 )
             return self._client
 
+except ImportError as _import_error:
+    logger.debug("django-redis is not installed.")
+
+    class BaseDjangoRedisRedisCache(LazyRedisCacheImportError):
+        parent_exception = _import_error
+
 
 try:
     import redislite
 
-    class RedisLiteCache(BaseRedisCache):
+    class RedisLiteMixin:
         library = redislite
         client_class = redislite.StrictRedis
 
@@ -81,33 +100,46 @@ try:
         def redis_client_cls_kwargs(self):
             return {"dbfilename": self.dbfilename}
 
-except ImportError as exc:
+except ImportError as _import_error:
     logger.debug("redislite is not installed.")
 
-    _import_error = exc
-
-    class RedisLiteCache:
-        def __init__(self, server, params):
-            raise _import_error
+    class RedisLiteMixin(LazyRedisCacheImportError):
+        parent_exception = _import_error
 
 
 try:
     import fakeredis
 
-    class FakeRedisCache(BaseRedisCache):
+    class FakeRedisMixin:
         _fake_server = SimpleLazyObject(lambda: fakeredis.FakeServer())
         client_class = fakeredis.FakeStrictRedis
         library = fakeredis
+
+        def __init__(self, server, params):
+            super().__init__(server, params)
 
         @property
         def redis_client_cls_kwargs(self):
             return {"server": self._fake_server}
 
-except ImportError as exc:
+except ImportError as _import_error:
     logger.debug("fakeredis is not installed.")
 
-    _import_error = exc
+    class FakeRedisMixin(LazyRedisCacheImportError):
+        parent_exception = _import_error
 
-    class FakeRedisCache:
-        def __init__(self, server, params):
-            raise _import_error
+
+class RedisLiteCache(RedisLiteMixin, BaseDjangoBuiltInRedisCache):
+    pass
+
+
+class RedisLiteDjangoRedisCache(RedisLiteMixin, BaseDjangoRedisRedisCache):
+    pass
+
+
+class FakeRedisCache(FakeRedisMixin, BaseDjangoBuiltInRedisCache):
+    pass
+
+
+class FakeRedisDjangoRedisCache(FakeRedisMixin, BaseDjangoRedisRedisCache):
+    pass
