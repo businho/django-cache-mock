@@ -1,13 +1,16 @@
 name: Python package
 
 on:
-  - push
-  - pull_request
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11']
 
@@ -24,6 +27,8 @@ jobs:
     - name: Test with tox
       run: tox -v
     - uses: codecov/codecov-action@v3
+      env:
+        token: ${{ secrets.CODECOV_TOKEN }}
       with:
         fail_ci_if_error: true
         verbose: true
