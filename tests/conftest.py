@@ -22,8 +22,12 @@ def _validate_backend_installed(cache_alias):
     from django_cache_mock.backends.redis import LazyRedisCacheImportError
 
     backend_module, backend_class = CACHES[cache_alias]["BACKEND"].rsplit(".", 1)
-    backend = getattr(importlib.import_module(backend_module), backend_class)
+    try:
+        module = importlib.import_module(backend_module)
+    except ImportError:
+        return False
 
+    backend = getattr(module, backend_class)
     if issubclass(backend, LazyRedisCacheImportError):
         return False
 
@@ -40,7 +44,7 @@ def _validate_backend_installed(cache_alias):
 @pytest.fixture
 def cache_alias_installed(cache_alias):
     if not _validate_backend_installed(cache_alias):
-        pytest.skip(f"Cache {cache_alias} not installed.")
+        pytest.skip(f"Cache {cache_alias} dependencies not installed.")
 
     yield cache_alias
     caches[cache_alias].clear()
@@ -50,7 +54,7 @@ def cache_alias_installed(cache_alias):
 @pytest.fixture
 def cache_alias_not_installed(cache_alias):
     if _validate_backend_installed(cache_alias):
-        pytest.skip(f"Cache {cache_alias} installed.")
+        pytest.skip(f"Cache {cache_alias} dependencies installed.")
     return cache_alias
 
 
