@@ -75,6 +75,22 @@ behaviours, like the db file `redislite` will use, defined by `LOCATION`:
 django_cache_mock.patch(CACHES, "default", "redislite", {"LOCATION": "data/redis.db"})
 ```
 
+## Redis backends
+
+Redis has several options to run. This lib implements `fakeredis` and `redislite`,
+with `django.core.cache` or `django-redis`.
+
+By default, the lib try to maintain the same behavior of the original implementation.
+If config uses `django-redis`, when you set use backend `fakeredis`, it will use
+it as `fakeredis[django-redis]`.
+
+```python
+# Force to use django-redis. It is not necessary, the lib already try to use
+# django-redis if cache uses `django_redis.cache.cache.RedisCache`.
+django_cache_mock.patch(CACHES, "redis", "fakeredis[django-redis]")
+django_cache_mock.patch(CACHES, "redis", "redislite[django-redis]")
+```
+
 ## How to access connections
 
 To get Django memcached and redis clients from cache:
