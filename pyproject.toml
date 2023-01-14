@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-cache-mock"
-version = "0.0.2"
+version = "0.0.3"
 description = ""
 authors = ["Iuri de Silvio <iurisilvio@gmail.com>"]
 readme = "README.md"
