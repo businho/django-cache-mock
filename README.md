@@ -87,10 +87,10 @@ def give_me_memcached():
 
 # for django.core.cache.backends.redis
 def give_me_primary_redis():
-    return caches["redis"]._cache.get_client()
+    return caches["redis"]._cache.get_client(write=True)
 
 def give_me_secondary_redis():
-    return caches["redis"]._cache.get_client(write=False)
+    return caches["redis"]._cache.get_client()
 
 # for django-redis
 def give_me_primary_redis():
@@ -98,4 +98,6 @@ def give_me_primary_redis():
 
 def give_me_secondary_redis():
     return caches["redis"].client.get_client(write=False)
+
+# Yes, django and django-redis have different write flag defaults.
 ```
