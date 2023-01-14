@@ -9,7 +9,7 @@ packages = [{include = "django_cache_mock"}]
 [tool.poetry.dependencies]
 python = "^3.8"
 django = "^3 || ^4"
-mockcache = { url = "https://github.com/buserbrasil/mockcache/archive/28fcd581ed185095cc93529954b5fceb704c1a34.zip", optional = true }
+mockcache3 = { version = "*", optional = true }
 fakeredis = { version = "*", optional = true }
 redislite = { version = "*", optional = true }
 django-redis = { version = "*", optional = true }
@@ -23,7 +23,7 @@ pytest-flake8 = "^1.1.1"
 pytest-isort = "^3.1.0"
 
 [tool.poetry.extras]
-mockcache = ["mockcache"]
+mockcache = ["mockcache3"]
 fakeredis = ["fakeredis"]
 redislite = ["redislite"]
 django-redis = ["django-redis"]

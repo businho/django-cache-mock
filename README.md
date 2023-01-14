@@ -23,8 +23,8 @@ $ pip install django-cache-mock
 
 Also, it is possible to install with the backends you want.
 
-For `mockcache`, it installs a fork of the original package because it doesn´t
-work for new versions of Python.
+For `mockcache`, it installs [`mockcache3`](https://pypi.org/project/mockcache3/),
+a fork from original package because it doesn´t work for new versions of Python.
 
 ```shell
 $ pip install django-cache-mock[mockcache]
