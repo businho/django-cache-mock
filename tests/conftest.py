@@ -19,7 +19,7 @@ def cache_alias(request):
 
 def _validate_backend_installed(cache_alias):
     # Import at root level trigger https://github.com/jazzband/django-redis/issues/638.
-    from django_cache_mock.backends.redis import LazyRedisCacheImportError
+    from django_cache_mock.exceptions import LazyLibImportError
 
     backend_module, backend_class = CACHES[cache_alias]["BACKEND"].rsplit(".", 1)
     try:
@@ -28,7 +28,7 @@ def _validate_backend_installed(cache_alias):
         return False
 
     backend = getattr(module, backend_class)
-    if issubclass(backend, LazyRedisCacheImportError):
+    if issubclass(backend, LazyLibImportError):
         return False
 
     return True

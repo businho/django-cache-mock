@@ -1,13 +1,17 @@
+import logging
 from functools import cached_property
 
-import mockcache
-from django.core.cache.backends.memcached import BaseMemcachedCache
+from django.core.cache.backends.memcached import BaseMemcachedCache, PyMemcacheCache
+
+logger = logging.getLogger(__name__)
 
 
 class MockcacheCache(BaseMemcachedCache):
     _dbs = {}
 
     def __init__(self, server, params):
+        import mockcache
+
         super().__init__(
             server,
             params,
@@ -29,4 +33,21 @@ class MockcacheCache(BaseMemcachedCache):
     def _cache(self):
         client = super()._cache
         client.dictionary = self._dbs.setdefault(self.location, {})
+        return client
+
+
+class PyMemcacheMockMemcacheCache(PyMemcacheCache):
+    _dbs = {}
+
+    def __init__(self, server, params):
+        from pymemcache.test.utils import MockMemcacheClient
+
+        super().__init__(server, params)
+        self._class = MockMemcacheClient
+        self.location = server
+
+    @cached_property
+    def _cache(self):
+        client = super()._cache
+        client._contents = self._dbs.setdefault(self.location, {})
         return client

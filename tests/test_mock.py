@@ -39,14 +39,19 @@ def test_custom_params():
 def test_use_django_builtin_redis_based_on_backend(redis_backend):
     caches = {"default": {"BACKEND": "django.core.cache.backends.redis.RedisCache"}}
     patch(caches, "default", redis_backend)
-    assert caches["default"]["BACKEND"] == SUPPORTED_BACKENDS[redis_backend]
+    expected_backend = SUPPORTED_BACKENDS[redis_backend]
+    assert caches["default"] == {
+        "BACKEND": expected_backend,
+    }
 
 
 def test_use_django_redis_based_on_backend(redis_backend):
     caches = {"default": {"BACKEND": "django_redis.cache.RedisCache"}}
     patch(caches, "default", redis_backend)
     expected_backend = SUPPORTED_BACKENDS[f"{redis_backend}[django-redis]"]
-    assert caches["default"]["BACKEND"] == expected_backend
+    assert caches["default"] == {
+        "BACKEND": expected_backend,
+    }
 
 
 def test_use_django_redis_explicit(redis_backend):
@@ -54,4 +59,6 @@ def test_use_django_redis_explicit(redis_backend):
     explicit_django_redis_backend = f"{redis_backend}[django-redis]"
     patch(caches, "default", explicit_django_redis_backend)
     expected_backend = SUPPORTED_BACKENDS[explicit_django_redis_backend]
-    assert caches["default"]["BACKEND"] == expected_backend
+    assert caches["default"] == {
+        "BACKEND": expected_backend,
+    }
