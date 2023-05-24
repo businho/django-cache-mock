@@ -4,5 +4,6 @@ poetry.lock
 .coverage
 .python-version
 .tox
+coverage*.xml
 dist
 redis*.db
