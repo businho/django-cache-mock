@@ -31,6 +31,11 @@ def _validate_backend_installed(cache_alias):
     if issubclass(backend, LazyLibImportError):
         return False
 
+    try:
+        caches[cache_alias]
+    except ImportError:
+        return False
+
     return True
 
 

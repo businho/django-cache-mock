@@ -7,7 +7,6 @@ from django_cache_mock.exceptions import LazyLibImportError
 
 logger = logging.getLogger(__name__)
 
-
 try:
     from django.core.cache.backends.redis import RedisCache, RedisCacheClient
 
@@ -82,18 +81,25 @@ except ImportError as _import_error:
         parent_exception = _import_error
 
 
-class RedisLiteMixin:
-    def __init__(self, server, params):
-        import redislite
+try:
+    import redislite
 
-        self.library = redislite
-        self.client_class = redislite.StrictRedis
-        self.dbfilename = server or "redislite.db"
-        super().__init__(server, params)
+    class RedisLiteMixin:
+        def __init__(self, server, params):
+            self.library = redislite
+            self.client_class = redislite.StrictRedis
+            self.dbfilename = server or "redislite.db"
+            super().__init__(server, params)
 
-    @property
-    def redis_client_cls_kwargs(self):
-        return {"dbfilename": self.dbfilename}
+        @property
+        def redis_client_cls_kwargs(self):
+            return {"dbfilename": self.dbfilename}
+
+except ImportError as _import_error:
+    logger.debug("redislite is not installed.")
+
+    class RedisLiteMixin(LazyLibImportError):
+        parent_exception = _import_error
 
 
 try:

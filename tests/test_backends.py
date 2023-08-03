@@ -1,6 +1,6 @@
 import pytest
 from django.conf import settings
-from django.core.cache import InvalidCacheBackendError, caches
+from django.core.cache import caches
 
 from django_cache_mock.exceptions import LazyLibImportError
 from tests.thread_with_exceptions import Thread
@@ -73,7 +73,7 @@ def test_memcached_import_error(memcached_cache_alias_not_installed):
     cache_alias = memcached_cache_alias_not_installed
     try:
         caches[cache_alias]
-    except InvalidCacheBackendError:
+    except ImportError:
         pass
     else:  # pragma: no cover
         pytest.fail("Cache unexpectedly worked.")
