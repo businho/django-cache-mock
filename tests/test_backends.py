@@ -1,7 +1,8 @@
 import pytest
 from django.conf import settings
-from django.core.cache import InvalidCacheBackendError, caches
+from django.core.cache import caches
 
+from django_cache_mock.exceptions import LazyLibImportError
 from tests.thread_with_exceptions import Thread
 
 
@@ -38,19 +39,17 @@ def test_server_name(cache_alias_installed, tmp_path):
         pass
     cache = caches[cache_alias]
     assert cache.location == location
+
     cache.set("FOO", "BAR")
     assert cache.get("FOO") == "BAR"
 
 
 def test_not_implemented_exception():
-    # Import at root level trigger https://github.com/jazzband/django-redis/issues/638.
-    from django_cache_mock.backends.redis import LazyRedisCacheImportError
-
     try:
         1 / 0
     except ZeroDivisionError as _exc:
 
-        class MyError(LazyRedisCacheImportError):
+        class MyError(LazyLibImportError):
             exception = _exc
 
     with pytest.raises(MyError) as exception_info:
@@ -60,24 +59,7 @@ def test_not_implemented_exception():
     assert isinstance(exception_info.value.exception, ZeroDivisionError)
 
 
-def test_redis_import_error(redis_cache_alias_not_installed):
-    # Import at root level trigger https://github.com/jazzband/django-redis/issues/638.
-    from django_cache_mock.backends.redis import LazyRedisCacheImportError
-
-    cache_alias = redis_cache_alias_not_installed
-    try:
+def test_redis_import_error(cache_alias_not_installed):
+    cache_alias = cache_alias_not_installed
+    with pytest.raises(LazyLibImportError):
         caches[cache_alias]
-    except LazyRedisCacheImportError:
-        pass
-    else:  # pragma: no cover
-        pytest.fail("Cache unexpectedly worked.")
-
-
-def test_memcached_import_error(memcached_cache_alias_not_installed):
-    cache_alias = memcached_cache_alias_not_installed
-    try:
-        caches[cache_alias]
-    except InvalidCacheBackendError:
-        pass
-    else:  # pragma: no cover
-        pytest.fail("Cache unexpectedly worked.")

@@ -3,15 +3,9 @@ from functools import cached_property
 
 from django.utils.functional import SimpleLazyObject
 
+from django_cache_mock.exceptions import LazyLibImportError
+
 logger = logging.getLogger(__name__)
-
-
-class LazyRedisCacheImportError(Exception):
-    parent_exception = None
-
-    def __init__(self, server, params):
-        raise self from self.parent_exception
-
 
 try:
     from django.core.cache.backends.redis import RedisCache, RedisCacheClient
@@ -42,7 +36,7 @@ try:
 except ImportError as _import_error:
     logger.debug("Django built-in redis cache not found.")
 
-    class BaseDjangoBuiltInRedisCache(LazyRedisCacheImportError):
+    class BaseDjangoBuiltInRedisCache(LazyLibImportError):
         parent_exception = _import_error
 
 
@@ -83,7 +77,7 @@ try:
 except ImportError as _import_error:
     logger.debug("django-redis is not installed.")
 
-    class BaseDjangoRedisRedisCache(LazyRedisCacheImportError):
+    class BaseDjangoRedisRedisCache(LazyLibImportError):
         parent_exception = _import_error
 
 
@@ -91,10 +85,9 @@ try:
     import redislite
 
     class RedisLiteMixin:
-        library = redislite
-        client_class = redislite.StrictRedis
-
         def __init__(self, server, params):
+            self.library = redislite
+            self.client_class = redislite.StrictRedis
             self.dbfilename = server or "redislite.db"
             super().__init__(server, params)
 
@@ -105,7 +98,7 @@ try:
 except ImportError as _import_error:
     logger.debug("redislite is not installed.")
 
-    class RedisLiteMixin(LazyRedisCacheImportError):
+    class RedisLiteMixin(LazyLibImportError):
         parent_exception = _import_error
 
 
@@ -127,7 +120,7 @@ try:
 except ImportError as _import_error:
     logger.debug("fakeredis is not installed.")
 
-    class FakeRedisMixin(LazyRedisCacheImportError):
+    class FakeRedisMixin(LazyLibImportError):
         parent_exception = _import_error
 
 

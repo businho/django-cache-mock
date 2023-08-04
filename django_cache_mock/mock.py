@@ -1,6 +1,7 @@
 import logging
 
 SUPPORTED_BACKENDS = {
+    "pymemcache": "django_cache_mock.backends.memcached.PyMemcacheMockMemcacheCache",
     "mockcache": "django_cache_mock.backends.memcached.MockcacheCache",
     "fakeredis": "django_cache_mock.backends.redis.FakeRedisCache",
     "redislite": "django_cache_mock.backends.redis.RedisLiteCache",
@@ -15,8 +16,8 @@ SUPPORTED_BACKENDS = {
 logger = logging.getLogger(__name__)
 
 
-def patch(caches, cache_alias, backend, params=None, *, force=False):
-    current_config = caches[cache_alias]
+def patch(caches_config, cache_alias, backend, params=None, *, force=False):
+    current_config = caches_config[cache_alias]
     current_location = current_config.get("LOCATION")
 
     if params is None:
@@ -32,7 +33,7 @@ def patch(caches, cache_alias, backend, params=None, *, force=False):
     params["BACKEND"] = SUPPORTED_BACKENDS[backend]
     logger.info(f"Cache {cache_alias} mocked with {backend}.")
     logger.debug(f"{params=}.")
-    caches[cache_alias] = params
+    caches_config[cache_alias] = params
     return True
 
 

@@ -9,7 +9,8 @@ packages = [{include = "django_cache_mock"}]
 [tool.poetry.dependencies]
 python = "^3.8"
 django = "^3 || ^4"
-mockcache3 = { version = "*", optional = true }
+pymemcache = { version = "*", optional = true }
+mockcache3 = { version = "^2", optional = true }
 fakeredis = { version = "*", optional = true }
 redislite = { version = "*", optional = true }
 django-redis = { version = "*", optional = true }
@@ -21,6 +22,7 @@ pytest-cov = "*"
 pytest-ruff = "*"
 
 [tool.poetry.extras]
+pymemcache = ["pymemcache"]
 mockcache = ["mockcache3"]
 fakeredis = ["fakeredis"]
 redislite = ["redislite"]
