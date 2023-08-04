@@ -22,11 +22,7 @@ def _validate_backend_installed(cache_alias):
     from django_cache_mock.exceptions import LazyLibImportError
 
     backend_module, backend_class = CACHES[cache_alias]["BACKEND"].rsplit(".", 1)
-    try:
-        module = importlib.import_module(backend_module)
-    except ImportError:
-        return False
-
+    module = importlib.import_module(backend_module)
     backend = getattr(module, backend_class)
     if issubclass(backend, LazyLibImportError):
         return False
